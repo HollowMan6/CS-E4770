@@ -1,0 +1,16 @@
+<% layout("./layouts/layout.eta") %>
+<h1>My URL shortener!</h1>
+
+<p>Input an URL, click "Shorten!" to get a shorter but equivalent one!</p>
+
+<form action="/" method="post">
+  <input type="text" name="url" placeholder="URL" />
+  <input type="submit" value="Shorten!" />
+</form>
+
+<% if (it.shortened) { %>
+  <p>
+    <a href="<%= it.url %>"><%= it.url %></a> is now at
+    <a href="<%= it.shortened %>"><%= it.shortened %></a>
+  </p>
+<% } %>

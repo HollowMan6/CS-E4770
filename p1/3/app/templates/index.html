@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://unpkg.com/papercss@1.8.2/dist/paper.min.css">
+  <title>Shorten URL</title>
+</head>
+<body>
+  <div class="paper container">
+    <h1>My URL shortener!</h1>
+
+    <p>Input an URL, click "Shorten!" to get a shorter but equivalent one!</p>
+
+    <form action="/" method="post">
+      <input type="text" name="url" placeholder="URL" />
+      <input type="submit" value="Shorten!" />
+    </form>
+
+    {% if shortened %}
+      <p>
+        <a href="{{ url }}">{{ url }}</a> is now at
+        <a href="{{ shortened }}">{{ shortened }}</a>
+      </p>
+    {% endif %}
+  </div>
+</body>
+</html>

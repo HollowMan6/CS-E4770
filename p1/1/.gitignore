@@ -1,0 +1,3 @@
+.vscode
+app-cache/deps/**
+app-cache/gen/**
