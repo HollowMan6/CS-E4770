@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   app:
-    build: app
+    build: .
     image: app-deno
     restart: "no"
     volumes:
@@ -35,7 +35,7 @@ services:
 
   k6:
     entrypoint: "/bin/true" # Prevent startup on docker-compose up
-    build: k6
+    build: ../common/k6
     image: k6
     network_mode: host
     depends_on:
