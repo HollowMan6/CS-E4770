@@ -48,7 +48,6 @@ def get_random():
                 return "Empty database", 404
             return redirect(res[0])
 
-
 @app.get("/<tag>")
 def get_room_all(tag):
     with connection:
