@@ -205,7 +205,7 @@ docker-compose run --entrypoint=k6 k6 run redirect.js
 running (12.0s), 00/50 VUs, 67825 complete and 0 interrupted iterations
 default ✓ [======================================] 50 VUs  12s
 
-     ✓ is status 302
+     ✓ is status 302/303
 
      checks.........................: 100.00% ✓ 67825      ✗ 0
      data_received..................: 17 MB   1.4 MB/s
@@ -257,7 +257,7 @@ default ✓ [======================================] 50 VUs  12s
 running (12.1s), 00/50 VUs, 6535 complete and 0 interrupted iterations
 default ✓ [======================================] 50 VUs  12s
 
-     ✓ is status 302
+     ✓ is status 302/303
 
      checks.........................: 100.00% ✓ 6535       ✗ 0
      data_received..................: 2.8 MB  228 kB/s
@@ -288,7 +288,7 @@ docker-compose run --entrypoint=k6 k6 run random.js
 running (12.0s), 00/50 VUs, 68104 complete and 0 interrupted iterations
 default ✓ [======================================] 50 VUs  12s
 
-     ✓ is status 302
+     ✓ is status 302/303
 
      checks.........................: 100.00% ✓ 68104       ✗ 0
      data_received..................: 19 MB   1.6 MB/s
@@ -340,7 +340,7 @@ default ✓ [======================================] 50 VUs  12s
 running (12.2s), 00/50 VUs, 2947 complete and 0 interrupted iterations
 default ✓ [======================================] 50 VUs  12s
 
-     ✓ is status 302
+     ✓ is status 302/303
 
      checks.........................: 100.00% ✓ 2947       ✗ 0
      data_received..................: 1.3 MB  109 kB/s

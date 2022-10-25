@@ -9,6 +9,6 @@ export const options = {
 
 export default function () {
     check(http.get("http://localhost:7777/DmaECwm", { redirects: 0 }), {
-        "is status 302": (r) => r.status === 302,
+        "is status 302/303": (r) => r.status === 302 || r.status === 303,
     });
 }
