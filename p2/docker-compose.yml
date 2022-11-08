@@ -1,0 +1,58 @@
+version: "3.4"
+
+services:
+  web:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 7800:7800
+    depends_on:
+      - ui
+      - api
+    command: [nginx-debug, '-g', 'daemon off;']
+
+  ui:
+    build: ui
+    image: ui
+    restart: "no"
+    volumes:
+      - ./ui/:/app
+    ports:
+      - 7778:7778
+    depends_on:
+      - api
+    env_file:
+      - project.env
+
+  api:
+    build: api
+    image: api
+    restart: "no"
+    volumes:
+      - ./api/:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 7777:7777
+    depends_on:
+      - database
+      - flyway
+    env_file:
+      - project.env
+
+  database:
+    container_name: dab-p2-database-5f31bd29-7026-4af6-a49a-1f51a612da11
+    image: postgres:14.1
+    restart: "no"
+    env_file:
+      - project.env
+
+  flyway:
+    image: flyway/flyway:8.4.0-alpine
+    depends_on:
+      - database
+    volumes:
+      - .:/flyway/sql
+    command: -connectRetries=60 -baselineOnMigrate=true migrate
+    env_file:
+      - project.env
