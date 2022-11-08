@@ -1,14 +1,291 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Title</title>
-  </head>
-  <body>
-    <h1>Hello world!</h1>
-    <p>You'll want to replace the ui functionality fully (e.g. with an Astro application).</p>
-    <form method="POST" action="/api">
-        <textarea name="code"></textarea><br/>
-        <input type="submit" value="Send code" />
-    </form>
-  </body>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://unpkg.com/papercss@1.8.2/dist/paper.min.css">
+  <title>Programming Exercises</title>
+</head>
+
+<body>
+  <div class="paper container">
+    <h1>Programming Exercises</h1>
+    <div id="exercises">
+      <p id="title-1" onclick="showQuestion(1)" style="display:none;"><strong>Exercise name: Sum of three
+          values</strong></p>
+      <div id="content-1" style="display:none;">
+        <p>Write a function <code>int sum(int first, int second, int third)</code> that returns the sum of the given
+          integers. As an example, the function call <code>sum(1, 2, 3)</code> should return the value <code>6</code>.
+        </p>
+      </div>
+      <p id="title-2" onclick="showQuestion(2)" style="display:none;"><strong>Exercise name: Sum with formula</strong>
+      </p>
+      <div id="content-2" style="display:none;">
+        <p>Write a function <code>String sumWithFormula(int first, int second)</code> that returns the written out sum
+          of
+          the given integers and the sum. As an example, the function call <code>sumWithFormula(1, 2)</code> should
+          return
+          the string <code>1+2=3</code> and the function call <code>sumWithFormula(1, 1)</code> should return the string
+          <code>1+1=2</code>. Note! Do not add spaces to the returned string.
+        </p>
+      </div>
+      <p id="title-3" onclick="showQuestion(3)" style="display:none;"><strong>Exercise name: Budget check</strong></p>
+      <div id="content-3" style="display:none;">
+        <p>Write a function <code>String budgetCheck(double budget, double currentSpending)</code> that returns
+          information
+          on whether a given budget is in order in light of given spending. If the value of <code>currentSpending</code>
+          is
+          larger than the value of <code>budget</code>, the function should return "Budget: Overspending". Otherwise,
+          the
+          function should return "Budget: OK".</p>
+      </div>
+      <p id="title-4" onclick="showQuestion(4)" style="display:none;"><strong>Exercise name: Mystery function</strong>
+      </p>
+      <div id="content-4" style="display:none;">
+        <p>Write a function <code>String mystery(int number)</code> that returns a string based on the number. If the
+          number
+          is divisible by 5, the function should return the string "mys". If the number is divisible by 7, the function
+          should return the string "tery". If the number is divisible by both 5 and 7, the function should return the
+          string
+          "mystery". Otherwise, the function should return a string representation of the given number, e.g. if the
+          number
+          is 1, the function should return "1".</p>
+      </div>
+      <p id="title-5" onclick="showQuestion(5)" style="display:none;"><strong>Exercise name: Sum of negative
+          numbers</strong></p>
+      <div id="content-5" style="display:none;">
+        <p>Write a function <code>int sumOfNegatives(List&lt;int&gt; numbers)</code> that returns the sum of the
+          negative
+          numbers in the given list. For example, if the numbers list would contain the numbers -1, 2, -4, the function
+          should return the value -5.</p>
+      </div>
+      <p id="title-6" onclick="showQuestion(6)" style="display:none;"><strong>Exercise name: Average of
+          positives</strong></p>
+      <div id="content-6" style="display:none;">
+        <p>Write a function <code>double averageOfPositives(List&lt;int&gt; numbers)</code> that returns the average
+          value
+          of the positive numbers on the list. If there are no positive values, the function should return the value -1.
+        </p>
+      </div>
+      <p id="title-7" onclick="showQuestion(7)" style="display:none;"><strong>Exercise name: Team</strong></p>
+      <div id="content-7" style="display:none;">
+        <p>Create a class <code>Team</code> and implement the two following constructors (and necessary properties) to
+          the
+          class. The default constructor should have three properties: (1) the name of the team (String), (2) the home
+          town
+          of the team (String), and (3) the year the team was formed (int). The named constructor
+          <code>nameAndYear</code>
+          should have two properties: (1) the name of the team (String) and (2) the year the team was formed (int). In
+          the
+          case of the named constructor, the home town of the team must be "Unknown".
+        </p>
+        <p>Once completed, add a <code>toString</code> method to the class which leads to outputs outlined by the
+          following
+          examples.</p>
+        <div>
+          <pre class="language-text line-numbers"
+            style="counter-reset: linenumber 0 NaN 0;"><code >final hjk = Team("HJK", "Helsinki", 1907);
+print(hjk);
+final secret = Team.nameAndYear("Secret", 1984);
+print(secret);</code><span aria-hidden="true" style="white-space: normal; width: auto; left: 0px;"><span></span><span></span><span></span><span></span></span></pre>
+        </div>
+        <p>With the code above, the output should be as follows.</p>
+        <div>
+          <pre
+            style="counter-reset: linenumber 0 NaN 0;"><code >HJK (Helsinki, 1907)
+Secret (Unknown, 1984)</code><span aria-hidden="true" style="white-space: normal; width: auto; left: 0px;"><span></span><span></span></span></pre>
+        </div>
+      </div>
+      <p id="title-8" onclick="showQuestion(8)" style="display:none;"><strong>Exercise name: Video and playlist</strong>
+      </p>
+      <div id="content-8" style="display:none;">
+        <p>Implement the classes <code>Video</code> and <code>Playlist</code> as follows. The class <code>Video</code>
+          should have a name (String), a duration in seconds (int), a constructor with named arguments, and a
+          <code>toString</code> method. The default name should be "Unknown" and the default length should be 0. The
+          class
+          should work as follows.
+        </p>
+        <div>
+          <pre
+            style="counter-reset: linenumber 0 NaN 0;"><code>print(Video(name: "One second clip", duration: 1));
+print(Video(name: "Hello again!", duration: 84));</code><span aria-hidden="true" style="white-space: normal; width: auto; left: 0px;"><span></span><span></span></span></pre>
+        </div>
+        <p>With the code above, the output should be as follows.</p>
+        <div>
+          <pre
+            style="counter-reset: linenumber 0 NaN 0;"><code>One second clip (1 second)
+Hello again! (84 seconds)</code><span aria-hidden="true" style="white-space: normal; width: auto; left: 0px;"><span></span><span></span></span></pre>
+        </div>
+        <p>The class <code>Playlist</code> should contain a list of videos, provide a default (no argument) constructor,
+          and
+          offer the following methods: (1) <code>void add(Video video)</code> that adds a video to the playlist, (2)
+          <code>bool has(String name)</code> that returns true if the list of videos contains a video with the given
+          name,
+          and (3) <code>int duration()</code> that returns the sum of durations of the videos in the playlist. The class
+          should work as follows.
+        </p>
+        <div>
+          <pre
+            style="counter-reset: linenumber 0 NaN 0;"><code>final playlist = Playlist();
+print(playlist.has("One second clip"));
+print(playlist.duration());
+playlist.add(Video(name: "One second clip", duration: 1));
+playlist.add(Video(name: "Hello again!", duration: 84));
+print(playlist.has("One second clip"));
+print(playlist.duration());</code><span aria-hidden="true" style="white-space: normal; width: auto; left: 0px;"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></pre>
+        </div>
+        <p>With the code above, the output should be as follows.</p>
+        <div data-language="text">
+          <pre
+            style="counter-reset: linenumber 0 NaN 0;"><code>false
+0
+true
+85</code><span aria-hidden="true" style="white-space: normal; width: auto; left: 0px;"><span></span><span></span><span></span><span></span></span></pre>
+        </div>
+      </div>
+    </div>
+    <div id="submit-form" style="display:none;" align="center">
+      <textarea id="code" rows="10" cols="45"></textarea><br />
+      <span id="message" style="display:none;"></span><br /><br />
+      <button id="back" onclick="showMain()" style="display:none;">Back</button>
+      <button id="send" onclick="sendCode()">Send code</button>
+    </div>
+    <p>
+
+    </p>
+  </div>
+  <script>
+    let token
+    let exercise = 8
+    let currentQuestion = 1
+    let inMain = true
+    let exerciseStatus = {
+      "1": false,
+      "2": false,
+      "3": false,
+      "4": false,
+      "5": false,
+      "6": false,
+      "7": false,
+      "8": false
+    }
+
+    let makeid = (length) => {
+      let result = ''
+      let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+      let charactersLength = characters.length
+      for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength))
+      }
+      return result
+    }
+
+    let showQuestion = (id) => {
+      inMain = false
+      currentQuestion = id
+      for (let i = 1; i <= exercise; i++) {
+        if (i === id) {
+          document.getElementById('title-' + i).style.display = ''
+          document.getElementById('content-' + i).style.display = ''
+        } else {
+          document.getElementById('title-' + i).style.display = 'none'
+          document.getElementById('content-' + i).style.display = 'none'
+        }
+      }
+      document.getElementById('submit-form').style.display = ''
+      document.getElementById('back').style.display = ''
+    }
+
+    let showMain = () => {
+      inMain = true
+      counter = 3
+      for (let i = 1; i <= exercise; i++) {
+        if (counter > 0 && !exerciseStatus[String(i)]) {
+          counter--
+          document.getElementById('title-' + i).style.display = ''
+        } else if (!exerciseStatus[String(i)]) {
+          document.getElementById('title-' + i).style.display = 'none'
+        } else {
+          document.getElementById('title-' + i).style.display = ''
+        }
+        document.getElementById('content-' + i).style.display = 'none'
+      }
+      document.getElementById('submit-form').style.display = 'none'
+      document.getElementById('back').style.display = 'none'
+      document.getElementById('message').style.display = 'none'
+      document.getElementById('message').innerText = ''
+      document.getElementById('code').value = ''
+      document.getElementById('send').disabled = false
+    }
+
+    let updateList = () => {
+      for (let i = 1; i <= exercise; i++) {
+        if (exerciseStatus[String(i)]) {
+          document.getElementById('title-' + i).style.textDecoration = 'line-through'
+        } else {
+          document.getElementById('title-' + i).style.textDecoration = ''
+        }
+      }
+    }
+
+    let sendCode = () => {
+      document.getElementById('message').style.display = ''
+      document.getElementById('message').innerText = 'Evaluating, please wait...'
+      document.getElementById('send').disabled = true
+      let code = document.getElementById('code').value
+      // Build formData object.
+      let formData = new FormData();
+      formData.append('code', code);
+      formData.append('user', token);
+      formData.append('exercise', currentQuestion);
+
+      fetch("/api",
+        {
+          body: formData,
+          method: "post"
+        }).then(response => response.json())
+        .then(data => {
+          if (data.result) {
+            document.getElementById('message').innerText = data.result
+            exerciseStatus[String(currentQuestion)] = true
+            if (inMain) {
+              showMain()
+            }
+            updateList()
+          } else {
+            document.getElementById('message').innerText = data
+          }
+          document.getElementById('send').disabled = false
+        })
+        .catch(error => {
+          document.getElementById('message').innerText = error
+          document.getElementById('send').disabled = false
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Randomly created user token on opening the application for the first time. The user
+      // token is stored in localstorage and is used to identify the user in the future.
+      token = localStorage.getItem("token")
+      if (!token) {
+        token = makeid(32)
+        localStorage.setItem("token", token)
+      }
+      showMain()
+      fetch("/api?user=" + token)
+        .then(response => response.json())
+        .then(data => {
+            exerciseStatus = data
+            showMain()
+            updateList()
+        })
+        .catch(error => {
+          console.log(error)
+        });
+    })
+  </script>
+</body>
+
 </html>
