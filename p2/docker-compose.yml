@@ -56,3 +56,15 @@ services:
     command: -connectRetries=60 -baselineOnMigrate=true migrate
     env_file:
       - project.env
+
+  k6:
+    entrypoint: "/bin/true" # Prevent startup on docker-compose up
+    build: ./k6
+    image: k6
+    network_mode: host
+    depends_on:
+      - ui
+      - api
+      - web
+    volumes:
+      - ./k6/:/k6/
