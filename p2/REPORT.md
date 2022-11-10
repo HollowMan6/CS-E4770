@@ -9,11 +9,11 @@ This application should pass with merits:
 2. Randomly created user token on opening the application for the first time. The user token is stored in localstorage and is used to identify the user in the future.
 3. When a solution has been submitted for grading, the user is shown the result once the grading has finished.
 4. A database for storing user-specific submissions and grading results.
-5. Handling submission peaks consisting of thousands of code submissions within a minute by storing submissions into a queue that is processed whenever resources are available.
+5. Handling submission peaks consisting of thousands of code submissions within a minute by storing submissions into a queue using RabbitMQ that is processed whenever consumed.
 6. The exercise list on the main page shows which exercises the user has completed using a strike-through.
 7. The main page lists always at most three non-completed exercises (and
 all completed exercises).
-8. The application features a cache of exercise submissions and the corresponding grading results by using exact string matching when checking whether a code is already in the cache – do account for different exercises!
+8. The application features a cache of exercise submissions and the corresponding grading results id by using exact string matching when checking whether a code is already in the cache – do account for different exercises!
 9. Lighthouse Performance score 100 for the web page (I show both the main page and the web page with same url).
 
 ## Starting and shutting down
@@ -35,7 +35,7 @@ Accessibility: 100
 Best Practices: 99
 
 ## Performance tests
-Performance tests are done with k6. The tests are done with 50 virtual users concurrently for 12 seconds.
+Performance tests are done with k6. The tests are done with 50 virtual users concurrently for 10 seconds.
 
 You should run the performance tests after starting the application with `docker-compose up`. The following commands are run in the terminal in the clone source code folder that contains the `docker-compose.yml` file.
 
@@ -93,28 +93,28 @@ docker-compose run --entrypoint=k6 k6 run form.js
            * default: 5 looping VUs for 10s (gracefulStop: 30s)
 
 
-running (23.3s), 0/5 VUs, 7 complete and 0 interrupted iterations
+running (10.0s), 0/5 VUs, 16403 complete and 0 interrupted iterations
 default ✓ [======================================] 5 VUs  10s
 
      ✓ is status 200
 
-     checks.........................: 100.00% ✓ 7        ✗ 0
-     data_received..................: 1.4 kB 62 B/s
-     data_sent......................: 1.9 kB 83 B/s
-     http_req_blocked...............: avg=251.26µs med=253.63µs p(95)=462.22µs p(99)=479.99µs
-     http_req_connecting............: avg=186.83µs med=210.32µs p(95)=316.01µs p(99)=325.55µs
-     http_req_duration..............: avg=11.49s   med=11.32s   p(95)=19.86s   p(99)=21s
-       { expected_response:true }...: avg=13.07s   med=11.98s   p(95)=20.1s    p(99)=21.05s
-     http_req_failed................: 0.00%   ✓ 0        ✗ 7
-     http_req_receiving.............: avg=137.56µs med=129.29µs p(95)=221.92µs p(99)=222.6µs
-     http_req_sending...............: avg=55.29µs  med=50.78µs  p(95)=84.15µs  p(99)=88.71µs
-     http_req_tls_handshaking.......: avg=0s       med=0s       p(95)=0s       p(99)=0s
-     http_req_waiting...............: avg=11.49s   med=11.32s   p(95)=19.86s   p(99)=21s
-     http_reqs......................: 7      0.299925/s
-     iteration_duration.............: avg=11.5s    med=11.32s   p(95)=19.86s   p(99)=21s
-     iterations.....................: 7      0.299925/s
-     vus............................: 1      min=1      max=5
-     vus_max........................: 5      min=5      max=5
+     checks.........................: 100.00% ✓ 16403       ✗ 0
+     data_received..................: 3.3 MB  329 kB/s
+     data_sent......................: 4.5 MB  454 kB/s
+     http_req_blocked...............: avg=2.17µs  med=1.57µs  p(95)=3.73µs   p(99)=5.63µs
+     http_req_connecting............: avg=141ns   med=0s      p(95)=0s       p(99)=0s
+     http_req_duration..............: avg=2.93ms  med=2.66ms  p(95)=4.95ms   p(99)=7.94ms
+       { expected_response:true }...: avg=2.93ms  med=2.66ms  p(95)=4.95ms   p(99)=7.94ms
+     http_req_failed................: 0.00%   ✓ 0           ✗ 16403
+     http_req_receiving.............: avg=42.57µs med=33.84µs p(95)=100.49µs p(99)=146.64µs
+     http_req_sending...............: avg=13.05µs med=8.14µs  p(95)=42.13µs  p(99)=65.74µs
+     http_req_tls_handshaking.......: avg=0s      med=0s      p(95)=0s       p(99)=0s
+     http_req_waiting...............: avg=2.87ms  med=2.61ms  p(95)=4.88ms   p(99)=7.82ms
+     http_reqs......................: 16403   1639.928037/s
+     iteration_duration.............: avg=3.04ms  med=2.76ms  p(95)=5.16ms   p(99)=8.17ms
+     iterations.....................: 16403   1639.928037/s
+     vus............................: 5       min=5         max=5
+     vus_max........................: 5       min=5         max=5
 ```
 
 ### API: Get user completed exercises
@@ -156,7 +156,46 @@ default ✓ [======================================] 50 VUs  10s
      vus_max........................: 50      min=50        max=50
 ```
 
+### API: Get grading results
+Run:
+```bash
+docker-compose run --entrypoint=k6 k6 run result.js
+```
+
+```logs
+  execution: local
+     script: result.js
+     output: -
+
+  scenarios: (100.00%) 1 scenario, 50 max VUs, 40s max duration (incl. graceful stop):
+           * default: 50 looping VUs for 10s (gracefulStop: 30s)
+
+
+running (10.0s), 00/50 VUs, 87228 complete and 0 interrupted iterations
+default ✓ [======================================] 50 VUs  10s
+
+     ✓ is status 200
+
+     checks.........................: 100.00% ✓ 87228     ✗ 0
+     data_received..................: 18 MB   1.8 MB/s
+     data_sent......................: 7.7 MB  767 kB/s
+     http_req_blocked...............: avg=1.81µs med=1.51µs  p(95)=2.46µs p(99)=4.02µs
+     http_req_connecting............: avg=115ns  med=0s      p(95)=0s     p(99)=0s
+     http_req_duration..............: avg=5.67ms med=5.25ms  p(95)=8.08ms p(99)=10.03ms
+       { expected_response:true }...: avg=5.67ms med=5.25ms  p(95)=8.08ms p(99)=10.03ms
+     http_req_failed................: 0.00%   ✓ 0         ✗ 87228
+     http_req_receiving.............: avg=24.7µs med=22.64µs p(95)=48.8µs p(99)=80.98µs
+     http_req_sending...............: avg=6.88µs med=6.18µs  p(95)=9.78µs p(99)=26.74µs
+     http_req_tls_handshaking.......: avg=0s     med=0s      p(95)=0s     p(99)=0s
+     http_req_waiting...............: avg=5.64ms med=5.22ms  p(95)=8.04ms p(99)=10ms
+     http_reqs......................: 87228   8720.0014/s
+     iteration_duration.............: avg=5.72ms med=5.3ms   p(95)=8.13ms p(99)=10.08ms
+     iterations.....................: 87228   8720.0014/s
+     vus............................: 50      min=50      max=50
+     vus_max........................: 50      min=50      max=50
+```
+
 ## Reflection
 As we store all the questions data into the front end and serve it as static files, we can easily scale the front end to handle more traffic. However, the API is the bottleneck of the system. We can scale the API to handle more traffic by adding more instances of the API. Currently, we only have cache for the submission grader result. However, furtherly, we can also improve the performance of the API by caching the data using redis. We can cache the data in the API and serve it to the front end. This will reduce the number of requests to the database and improve the performance of the API.
 
-In addition, we can also improve the performance of the API by using a message queue to handle the submission. Currently, the API will handle the submission and directly send the submission to the grader. However, we can use a message queue like RabbitMQ to handle the submission. The API will send the submission to the message queue and the grader will consume the message from the message queue. This will reduce the chance for grader crash.
+In addition, we can also improve the performance of the API by using multiple nodes for message queue to handle the submission concurrently. Currently, the API handles the submission using a message queue like RabbitMQ, grader can only consume the message from the message queue on by one. However, we can use multiple nodes for message queue to handle the submission. This will improve the performance.

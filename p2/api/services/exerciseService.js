@@ -24,13 +24,27 @@ const getQuestionsStatus = async (user) => {
     return questions;
 }
 
-const recordSubmission = async (user, question, code, result) => {
+const recordSubmission = async (user, question, code) => {
     await executeQuery(
-        "INSERT INTO submissions (user_token, question, code, result) VALUES ($user, $question, $code, $result)",
-        { user, question, code, result },
+        "INSERT INTO submissions (user_token, question, code) VALUES ($user, $question, $code)",
+        { user, question, code },
     )
 
-    return true;
+    const res = await executeQuery(
+        "SELECT id FROM submissions WHERE user_token=$user AND question=$question AND code=$code",
+        { user, question, code },
+    )
+
+    return res.rows[0].id;
 }
 
-export { getQuestionsStatus, recordSubmission }
+const getSubmission = async (id) => {
+    const res = await executeQuery(
+        "SELECT * FROM submissions WHERE id=$id",
+        { id },
+    )
+
+    return res.rows[0].result;
+}
+
+export { getQuestionsStatus, recordSubmission, getSubmission }

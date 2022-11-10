@@ -1,20 +1,25 @@
-import { serve, sleep } from "./deps.js";
-import { grade } from "./grade.js";
-import { getQuestionsStatus, recordSubmission } from "./services/exerciseService.js";
+import { serve, connect } from "./deps.js";
+import { getQuestionsStatus, recordSubmission, getSubmission } from "./services/exerciseService.js";
+
+// Handling submission peaks consisting of thousands of code submissions within a
+// minute by storing submissions into a queue that is processed whenever resources are
+// available.
+const connection = await connect({ hostname: "mq" });
+const channel = await connection.openChannel();
+const queueName = "grader";
 
 // Features a cache of exercise submissions and the corresponding grading results.
 // The cache is used to avoid unnecessary grading of submissions that match
 // submitted codes already present in the cache
 let cache = {};
 
-// Handling submission peaks consisting of thousands of code submissions within a
-// minute by storing submissions into a queue that is processed whenever resources are
-// available.
-let queue = 0;
-
 const handleRequest = async (request) => {
   if (request.method === "GET") {
     const url = new URL(request.url);
+    if (url.searchParams.get('id')) {
+      const result = await getSubmission(url.searchParams.get('id'));
+      return new Response(JSON.stringify({ result }));
+    }
     const result = await getQuestionsStatus(url.searchParams.get('user'));
     return new Response(JSON.stringify(result));
   } else if (request.method === "POST") {
@@ -30,19 +35,15 @@ const handleRequest = async (request) => {
     if (code in cache[exercise]) {
       result = cache[exercise][code];
     } else {
-      // As one grader can last 12 seconds, we can limit the number of concurrent
-      // graders to 200 to handle submission peaks consisting of thousands of code
-      // submissions within a minute.
-      while (queue > 200) {
-        await sleep(1);
-      }
-      queue++;
-      result = await grade(code);
-      queue--;
+      result = await recordSubmission(user, exercise, code);
       cache[exercise][code] = result;
-      recordSubmission(user, exercise, code, result);
+      await channel.publish(
+        { routingKey: queueName },
+        { contentType: "application/json" },
+        new TextEncoder().encode(JSON.stringify({ code, result }))
+      );
     }
-    return new Response(JSON.stringify({ result: result }));
+    return new Response(JSON.stringify({ result }));
   }
 };
 

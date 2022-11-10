@@ -25,18 +25,42 @@ services:
     env_file:
       - project.env
 
+  mq:
+    image: rabbitmq:3-management
+    restart: "no"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - project.env
+
+  service:
+    build: service
+    image: service
+    restart: "no"
+    volumes:
+      - ./service/:/app
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - database
+      - flyway
+      - mq
+    env_file:
+      - project.env
+
   api:
     build: api
     image: api
     restart: "no"
     volumes:
       - ./api/:/app
-      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 7777:7777
     depends_on:
       - database
       - flyway
+      - mq
+      - service
     env_file:
       - project.env
 
