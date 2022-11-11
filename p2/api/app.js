@@ -43,7 +43,7 @@ const handleRequest = async (request) => {
         new TextEncoder().encode(JSON.stringify({ code, result }))
       );
     }
-    return new Response(JSON.stringify({ result }));
+    return new Response(JSON.stringify({ result, exercise }));
   }
 };
 

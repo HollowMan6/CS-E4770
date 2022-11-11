@@ -25,13 +25,8 @@ const getQuestionsStatus = async (user) => {
 }
 
 const recordSubmission = async (user, question, code) => {
-    await executeQuery(
-        "INSERT INTO submissions (user_token, question, code) VALUES ($user, $question, $code)",
-        { user, question, code },
-    )
-
     const res = await executeQuery(
-        "SELECT id FROM submissions WHERE user_token=$user AND question=$question AND code=$code",
+        "INSERT INTO submissions (user_token, question, code) VALUES ($user, $question, $code) RETURNING id",
         { user, question, code },
     )
 

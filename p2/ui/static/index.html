@@ -182,20 +182,20 @@ true
       return result
     }
 
-    let getResult = (id) => {
+    let getResult = (id, question) => {
       fetch("/api?id=" + id)
         .then(response => response.json())
         .then(data => {
           if (data.result) {
             document.getElementById('message').innerText = data.result
-            exerciseStatus[String(currentQuestion)] = true
+            exerciseStatus[String(question)] = true
             if (inMain) {
               showMain()
             }
             updateList()
             document.getElementById('send').disabled = false
           } else {
-            setTimeout(() => getResult(id), 1000)
+            setTimeout(() => getResult(id, question), 1000)
           }
         })
         .catch(error => {
@@ -267,7 +267,7 @@ true
           method: "post"
         }).then(response => response.json())
         .then(data => {
-          getResult(data.result)
+          getResult(data.result, data.exercise)
         })
         .catch(error => {
           document.getElementById('message').innerText = error
