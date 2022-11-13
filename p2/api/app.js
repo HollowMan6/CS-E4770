@@ -37,11 +37,14 @@ const handleRequest = async (request) => {
     } else {
       result = await recordSubmission(user, exercise, code);
       cache[exercise][code] = result;
-      await channel.publish(
-        { routingKey: queueName },
-        { contentType: "application/json" },
-        new TextEncoder().encode(JSON.stringify({ code, result }))
-      );
+      const ans = await getSubmission(result);
+      if (!ans) {
+        await channel.publish(
+          { routingKey: queueName },
+          { contentType: "application/json" },
+          new TextEncoder().encode(JSON.stringify({ code, result }))
+        );
+      }
     }
     return new Response(JSON.stringify({ result, exercise }));
   }

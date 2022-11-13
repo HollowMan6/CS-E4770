@@ -7,7 +7,7 @@ const channel = await connection.openChannel();
 
 const queueName = "grader";
 await channel.declareQueue({ queue: queueName });
-await channel.qos({ prefetchCount: 1 });
+await channel.qos({ prefetchCount: 200 });
 await channel.consume(
   { queue: queueName },
   async(args, props, data) => {

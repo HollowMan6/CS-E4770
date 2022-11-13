@@ -3,7 +3,7 @@ import http from "k6/http";
 
 export const options = {
     duration: "10s",
-    vus: 5,
+    vus: 50,
     summaryTrendStats: ["avg", "med", "p(95)", "p(99)"],
 };
 
