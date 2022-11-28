@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <script>
+      const fetchDataFromApi = async() => {
+        const data = await fetch("/api");
+        const jsonData = await data.json();
+        document.querySelector("#data").innerHTML = JSON.stringify(jsonData);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Hello world!</h1>
+    <button onclick="fetchDataFromApi()">Hello world!</button>
+    <pre id="data">
+    </pre>
+  </body>
+</html>
