@@ -5,8 +5,7 @@ import {
   Routes,
   Route,
   Link,
-  Navigate,
-  useParams,
+  useMatch,
   useNavigate,
 } from "react-router-dom"
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -42,57 +41,112 @@ const Content = ({index, content, reply}) => {
 }
 
 const List = ({reply}) => {
+  useEffect(() => {
+    fetchMoreData()
+  }, [])
+
   const style = {
-    height: 90,
-    border: "1px solid black",
+    borderBottomLeftRadius: "15px 255px",
+    borderBottomRightRadius: "225px 15px", 
+    borderTopLeftRadius: "255px 15px",
+    borderTopRightRadius: "15px 225px",
+    border: "2px solid #41403e",
+    borderColor: "var(--primary)",
     margin: 6,
     padding: 8
   };
 
-  const [state, setState] = useState(generateArray(10));
+  const [state, setState] = useState([]);
   const [message, setMessage] = useState('')
+  const matchMsg = useMatch('/:id');
+  const type = reply ? 'reply' : 'message'
 
   const setNewState = (newState) => {
     setState([...newState].sort((a, b) => b.time - a.time))
   }
 
   const fetchMoreData = () => {
-    // a fake async api call like which sends
-    // 20 more records in 1.5 secs
-    setTimeout(() => {
-      setNewState(state.concat(generateArray(20)));
-    }, 1500);
+    let max_id = 2147483646;
+    if (state.length > 0) {
+      max_id = state[state.length - 1].id
+    }
+    if (matchMsg) {
+      const msgid = Number(matchMsg.params.id)
+      if (msgid) {
+        fetch(`/api/?id=${max_id}&messageid=${msgid}`).then((response) => {
+          response.json().then((data) => {
+            setNewState(state.concat(data))
+          })
+        });
+      }
+    } else {
+      fetch(`/api/?id=${max_id}`).then((response) => {
+        response.json().then((data) => {
+          setNewState(state.concat(data))
+        })
+      });
+    }
   };
 
   const sendMessage = () => {
-    setNewState(state.concat([{content: message, time: Date.now(), point: 0}]));
-    setMessage('')
+    if (message) {
+      const data = {
+        usertoken: window.localStorage.getItem('user'),
+        content: message
+      }
+
+      if (matchMsg) {
+        const msgid = Number(matchMsg.params.id)
+        if (msgid) {
+          data.messageid = msgid
+        } else {
+          setMessage('')
+          return
+        }
+      }
+
+      fetch('/api', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }).then((response) => {
+        response.json().then((data) => {
+          setNewState(state.concat(data))
+        })
+      });
+      setMessage('')
+    }
   }
 
   const handleInputMessageChange = (event) => {
     setMessage(event.target.value)
   }
 
-  const vote = (id) => {
-    const voted = {
-      ...state[id],
-      point: state[id].point + 1
+  const vote = async(id, toVote) => {
+    const toModify = state.find((item) => item.id === id)
+    let voted = {
+      ...toModify,
+      point: toModify.point + 1
+    };
+    let vote = "up";
+    if (!toVote) {
+      voted = {
+        ...toModify,
+        point: toModify.point - 1
+      }
+      vote = "down";
     }
-    setNewState(state.map((e, index) => index === id ? voted : e))
-  }
 
-  const veto = (id) => {
-    const vetoed = {
-      ...state[id],
-      point: state[id].point - 1
-    }
-    setNewState(state.map((e, index) => index === id ? vetoed : e))
+    await fetch('/api', {
+      method: 'POST',
+      body: JSON.stringify({id, vote, msg: type})
+    })
+    setNewState(state.map((e) => e.id === id ? voted : e))
   }
 
   return (
     <>
       <div align="center">
-        <textarea rows="1" cols="100" onChange={handleInputMessageChange} value={message}></textarea><br />
+        <textarea rows="1" cols="100" placeholder="Type your message here..." onChange={handleInputMessageChange} value={message}></textarea><br />
         <button onClick={sendMessage}>Send</button>
       </div>
       <InfiniteScroll
@@ -101,17 +155,17 @@ const List = ({reply}) => {
         hasMore={true}
         loader={<h4>Loading...</h4>}
       >
-        {state.map(({content, time, point}, index) => (
-            <div style={style} key={index}>
-              <Content index={index} content={content} reply={reply}></Content>
+        {state.map(({id, content, time, point}, i) => (
+            <div style={style} key={i}>
+              <Content index={id} content={content} reply={reply}></Content>
               <br/>
-              <small>{new Date(time).toString()}</small><br/>
-              <button onClick={()=>vote(index)}>
-                vote
+              <small>{new Date(Number(time)).toString()}</small><br/>
+              <button onClick={()=>vote(id, true)}>
+                ⬆️
               </button>
               {point}
-              <button onClick={()=>veto(index)}>
-                veto
+              <button onClick={()=>vote(id, false)}>
+                ⬇️
               </button>
             </div>
         ))}
