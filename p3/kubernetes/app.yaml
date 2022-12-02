@@ -1,0 +1,201 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ui
+  name: ui
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ui
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: ui
+    spec:
+      containers:
+      - image: docker.io/hollowman6/ui
+        name: ui
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: api
+  name: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - image: docker.io/hollowman6/api
+        name: api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sse
+  name: sse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sse
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: sse
+    spec:
+      containers:
+      - image: docker.io/hollowman6/sse
+        name: sse
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mq
+  name: mq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mq
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: mq
+    spec:
+      containers:
+      - image: rabbitmq:3-management
+        name: rabbitmq
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: null
+  name: ui
+spec:
+  maxReplicas: 10
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ui
+  targetCPUUtilizationPercentage: 25
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: null
+  name: api
+spec:
+  maxReplicas: 10
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api
+  targetCPUUtilizationPercentage: 25
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ui
+  name: ui
+spec:
+  ports:
+  - port: 7778
+    protocol: TCP
+    targetPort: 7778
+  selector:
+    app: ui
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api
+  name: api
+spec:
+  ports:
+  - port: 7777
+    protocol: TCP
+    targetPort: 7777
+  selector:
+    app: api
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: sse
+  name: sse
+spec:
+  ports:
+  - port: 7776
+    protocol: TCP
+    targetPort: 7776
+  selector:
+    app: sse
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mq
+  name: mq
+spec:
+  ports:
+  - port: 5672
+    protocol: TCP
+    targetPort: 5672
+  selector:
+    app: mq
+  type: NodePort
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ui
+                port:
+                  number: 7778
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: api
+                port:
+                  number: 7777
+          - path: /sse
+            pathType: Prefix
+            backend:
+              service:
+                name: sse
+                port:
+                  number: 7776

@@ -14,4 +14,4 @@ RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for
 RUN mv wait-for-it.sh /
 RUN chmod +x /wait-for-it.sh
 
-CMD [ "/wait-for-it.sh", "mq:5672", "--", "deno", "run", "--watch", "--allow-net", "--allow-read", "--allow-run", "--allow-env", "--allow-write", "--no-check", "app.js" ]
+CMD [ "run", "--allow-net", "--allow-read", "--allow-run", "--allow-env", "--allow-write", "--no-check", "app.js" ]

@@ -15,7 +15,7 @@ services:
 
   ui:
     build: ui
-    image: ui
+    image: docker.io/hollowman6/ui
     restart: "no"
     volumes:
       - ./ui/:/app
@@ -37,7 +37,7 @@ services:
 
   sse:
     build: service
-    image: sse
+    image: docker.io/hollowman6/sse
     restart: "no"
     volumes:
       - ./service/:/app
@@ -47,12 +47,13 @@ services:
       - database
       - flyway
       - mq
+    command: ["/wait-for-it.sh", "mq:5672", "--", "deno", "run", "--watch", "--allow-net", "--allow-read", "--allow-run", "--allow-env", "--allow-write", "--no-check", "app.js" ]
     env_file:
       - project.env
 
   api:
     build: api
-    image: api
+    image: docker.io/hollowman6/api
     restart: "no"
     volumes:
       - ./api/:/app
@@ -63,6 +64,7 @@ services:
       - flyway
       - mq
       - sse
+    command: [ "/wait-for-it.sh", "mq:5672", "--", "deno", "run", "--watch", "--allow-net", "--allow-read", "--allow-run", "--allow-env", "--allow-write", "--no-check", "app.js" ]
     env_file:
       - project.env
 

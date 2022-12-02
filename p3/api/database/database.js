@@ -2,7 +2,18 @@ import { Pool } from "../deps.js";
 
 const CONCURRENT_CONNECTIONS = 2;
 
-const connectionPool = new Pool({}, CONCURRENT_CONNECTIONS);
+let connectionPool;
+if (Deno.env.get("PG_CLUSTER_EXAMPLE_RW_SERVICE_HOST")) {
+  connectionPool = new Pool({
+    database: "postgres",
+    hostname: Deno.env.get("PG_CLUSTER_EXAMPLE_RW_SERVICE_HOST"),
+    password: "postgres",
+    port: Deno.env.get("PG_CLUSTER_EXAMPLE_RW_SERVICE_PORT"),
+    user: "postgres",
+  }, CONCURRENT_CONNECTIONS);
+} else {
+  connectionPool = new Pool({}, CONCURRENT_CONNECTIONS);
+}
 
 const executeQuery = async (query, params) => {
   const response = {};
