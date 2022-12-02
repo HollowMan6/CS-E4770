@@ -1,10 +1,11 @@
 import { serve, connect } from "./deps.js";
 import { getMessages, getReplies, updatePoints, addMessage, addReply } from "./services/messageService.js";
 
-// const connection = await connect({ hostname: "mq" });
-// const channel = await connection.openChannel();
-// const queueName = "grader";
-BigInt.prototype.toJSON = function() { return this.toString() }
+const connection = await connect({ hostname: "mq" });
+const channel = await connection.openChannel();
+const queueName = "messager";
+
+BigInt.prototype.toJSON = function () { return this.toString() }
 
 const handleRequest = async (request) => {
   if (request.method === "GET") {
@@ -35,6 +36,13 @@ const handleRequest = async (request) => {
       result = await addMessage(usertoken, content);
     } else if (usertoken && content && messageid) {
       result = await addReply(usertoken, content, messageid);
+    }
+    if (result) {
+      await channel.publish(
+        { routingKey: queueName },
+        { contentType: "application/json" },
+        new TextEncoder().encode(JSON.stringify(result))
+      );
     }
     return new Response(JSON.stringify(result));
   }

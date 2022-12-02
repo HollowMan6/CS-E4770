@@ -10,5 +10,11 @@
   "pid": "5f31bd29-7026-4af6-a49a-1f51a612da11",
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features"
   }
 }

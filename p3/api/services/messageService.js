@@ -23,16 +23,16 @@ const updatePoints = async (id, vote, message) => {
     let table = message === "message" ? "message" : "reply";
     if (vote === "up") {
         res = await executeQuery(
-            "UPDATE " + table + " SET point=point+1 WHERE id=$id",
+            "UPDATE " + table + " SET point=point+1 WHERE id=$id RETURNING *",
             { id },
         );
     } else {
         res = await executeQuery(
-            "UPDATE " + table + " SET point=point-1 WHERE id=$id",
+            "UPDATE " + table + " SET point=point-1 WHERE id=$id RETURNING *",
             { id },
         );
     }
-    return res;
+    return res.rows;
 }
 
 const addMessage = async (user_token, content) => {
@@ -40,7 +40,6 @@ const addMessage = async (user_token, content) => {
         "INSERT INTO message (user_token, content, time, point) VALUES ($user_token, $content, $time, 0) RETURNING *",
         { user_token, content, time: Date.now() },
     );
-    console.log(res.rows);
     return res.rows;
 }
 

@@ -20,15 +20,7 @@ const makeid = (length) => {
   return result
 }
 
-const generateArray = (length) => {
-  const array = []
-  for (let i = 0; i < length; i++) {
-    array.push({content: makeid(16), time: Date.now(), point: 0})
-  }
-  return array
-}
-
-const Content = ({index, content, reply}) => {
+const Content = ({ index, content, reply }) => {
   if (reply) {
     return (
       <span>{content}</span>
@@ -40,14 +32,38 @@ const Content = ({index, content, reply}) => {
   }
 }
 
-const List = ({reply}) => {
+let source;
+const List = ({ reply }) => {
   useEffect(() => {
     fetchMoreData()
+    if (source) {
+      source.close()
+    }
+    source = new EventSource("//localhost:7776/");
+    source.addEventListener("ping", (evt) => {
+      if (evt.data) {
+        JSON.parse(evt.data).forEach((item) => {
+          if (matchMsg && item.message_id && item.message_id === Number(matchMsg.params.id)
+            || !matchMsg && !item.message_id) {
+            setState((states) => {
+              const toModify = states.find((e) => item.id === e.id)
+              if (toModify) {
+                return states.map((e) => e.id === item.id ? item : e)
+              } else {
+                return states.concat([item]).sort((a, b) => b.time - a.time)
+              }
+            }
+              
+            );
+          }
+        });
+      }
+    });
   }, [])
 
   const style = {
     borderBottomLeftRadius: "15px 255px",
-    borderBottomRightRadius: "225px 15px", 
+    borderBottomRightRadius: "225px 15px",
     borderTopLeftRadius: "255px 15px",
     borderTopRightRadius: "15px 225px",
     border: "2px solid #41403e",
@@ -121,7 +137,7 @@ const List = ({reply}) => {
     setMessage(event.target.value)
   }
 
-  const vote = async(id, toVote) => {
+  const vote = async (id, toVote) => {
     const toModify = state.find((item) => item.id === id)
     let voted = {
       ...toModify,
@@ -138,13 +154,15 @@ const List = ({reply}) => {
 
     await fetch('/api', {
       method: 'POST',
-      body: JSON.stringify({id, vote, msg: type})
+      body: JSON.stringify({ id, vote, msg: type })
     })
     setNewState(state.map((e) => e.id === id ? voted : e))
   }
 
+  const header = reply ? "Replies List" : "Message List"
   return (
     <>
+      <h3 align="center">{header}</h3>
       <div align="center">
         <textarea rows="1" cols="100" placeholder="Type your message here..." onChange={handleInputMessageChange} value={message}></textarea><br />
         <button onClick={sendMessage}>Send</button>
@@ -153,21 +171,20 @@ const List = ({reply}) => {
         dataLength={state.length}
         next={fetchMoreData}
         hasMore={true}
-        loader={<h4>Loading...</h4>}
       >
-        {state.map(({id, content, time, point}, i) => (
-            <div style={style} key={i}>
-              <Content index={id} content={content} reply={reply}></Content>
-              <br/>
-              <small>{new Date(Number(time)).toString()}</small><br/>
-              <button onClick={()=>vote(id, true)}>
-                ⬆️
-              </button>
-              {point}
-              <button onClick={()=>vote(id, false)}>
-                ⬇️
-              </button>
-            </div>
+        {state.map(({ id, content, time, point }, i) => (
+          <div style={style} key={i}>
+            <Content index={id} content={content} reply={reply}></Content>
+            <br />
+            <small>{new Date(Number(time)).toString()}</small><br />
+            <button onClick={() => vote(id, true)}>
+              ⬆️
+            </button>
+            {point}
+            <button onClick={() => vote(id, false)}>
+              ⬇️
+            </button>
+          </div>
         ))}
       </InfiniteScroll>
     </>
@@ -182,7 +199,7 @@ const Reply = () => {
       <p align="center">
         <button onClick={() => navigate('/')}>Back</button>
       </p>
-      <List reply={true}/>
+      <List reply={true} />
     </>
   )
 }
@@ -198,10 +215,9 @@ const App = () => {
   return (
     <div>
       <Router>
-        <h3 align="center">Message List</h3>
         <Routes>
-          <Route path="/" element={<List reply={false}/>} />
-          <Route path="/:id" element={<Reply/>} />
+          <Route path="/" element={<List reply={false} />} />
+          <Route path="/:id" element={<Reply />} />
         </Routes>
       </Router>
     </div>

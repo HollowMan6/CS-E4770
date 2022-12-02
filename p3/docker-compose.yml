@@ -10,6 +10,7 @@ services:
     depends_on:
       - ui
       - api
+      - sse
     command: [nginx-debug, '-g', 'daemon off;']
 
   ui:
@@ -25,6 +26,30 @@ services:
     env_file:
       - project.env
 
+  mq:
+    image: rabbitmq:3-management
+    restart: "no"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - project.env
+
+  sse:
+    build: service
+    image: sse
+    restart: "no"
+    volumes:
+      - ./service/:/app
+    ports:
+      - 7776:7776
+    depends_on:
+      - database
+      - flyway
+      - mq
+    env_file:
+      - project.env
+
   api:
     build: api
     image: api
@@ -36,6 +61,8 @@ services:
     depends_on:
       - database
       - flyway
+      - mq
+      - sse
     env_file:
       - project.env
 
@@ -55,3 +82,15 @@ services:
     command: -connectRetries=60 -baselineOnMigrate=true migrate
     env_file:
       - project.env
+
+  k6:
+    entrypoint: "/bin/true" # Prevent startup on docker-compose up
+    build: ./k6
+    image: k6
+    network_mode: host
+    depends_on:
+      - ui
+      - api
+      - web
+    volumes:
+      - ./k6/:/k6/
