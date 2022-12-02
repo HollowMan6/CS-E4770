@@ -15,7 +15,7 @@ services:
 
   ui:
     build: ui
-    image: docker.io/hollowman6/ui
+    image: ui
     restart: "no"
     volumes:
       - ./ui/:/app
@@ -23,6 +23,7 @@ services:
       - 7778:7778
     depends_on:
       - api
+    command: ["sh", "-c", "cd react && npm i && npm run build && cd .. && deno run --watch --allow-net --allow-read --allow-env --no-check app.js"]
     env_file:
       - project.env
 
@@ -37,7 +38,7 @@ services:
 
   sse:
     build: service
-    image: docker.io/hollowman6/sse
+    image: sse
     restart: "no"
     volumes:
       - ./service/:/app
@@ -53,7 +54,7 @@ services:
 
   api:
     build: api
-    image: docker.io/hollowman6/api
+    image: api
     restart: "no"
     volumes:
       - ./api/:/app

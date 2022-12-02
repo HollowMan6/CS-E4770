@@ -3,13 +3,10 @@ import { Pool } from "../deps.js";
 const CONCURRENT_CONNECTIONS = 2;
 
 let connectionPool;
-if (Deno.env.get("PG_CLUSTER_EXAMPLE_RW_SERVICE_HOST")) {
+if (Deno.env.get("PG_CLUSTER_RW_SERVICE_HOST")) {
   connectionPool = new Pool({
-    database: "postgres",
-    hostname: Deno.env.get("PG_CLUSTER_EXAMPLE_RW_SERVICE_HOST"),
-    password: "postgres",
-    port: Deno.env.get("PG_CLUSTER_EXAMPLE_RW_SERVICE_PORT"),
-    user: "postgres",
+    hostname: Deno.env.get("PG_CLUSTER_RW_SERVICE_HOST"),
+    port: Deno.env.get("PG_CLUSTER_RW_SERVICE_PORT"),
   }, CONCURRENT_CONNECTIONS);
 } else {
   connectionPool = new Pool({}, CONCURRENT_CONNECTIONS);

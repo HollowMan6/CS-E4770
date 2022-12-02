@@ -39,30 +39,16 @@ minikube addons enable metrics-server
 minikube addons enable ingress
 kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.18/releases/cnpg-1.18.0.yaml
 ```
-- Deploy a cluster
+- Deploy apps
 ```bash
-kubectl apply -f kubernetes/pg-cluster-example.yaml
-```
-- Login to cluster
-```bash
-kubectl exec -ti pg-cluster-example-1 -- /bin/bash
-```
-- Launch psql
-```bash
-psql
-```
-- Adjust password
-```SQL
-ALTER USER postgres WITH password 'postgres';
-```
-- Copy [the content of this SQL file](flyway/sql/V1___initial_schema.sql) and paste it into the psql console
-- Quit using \q, then exit
-
-```bash
+minikube image build -t ui ui
+minikube image build -t api api
+minikube image build -t sse service 
 kubectl apply -f kubernetes/app.yaml
+minikube tunnel
 ```
 
-Then, open the following URL in your browser: http://localhost
+Then, open the indicated ip in your browser.
 
 ## Core Web Vitals tests
 Using [Lighthouse](https://developers.google.com/web/tools/lighthouse) to test the Core Web Vitals of the application.
