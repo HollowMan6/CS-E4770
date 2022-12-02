@@ -11,8 +11,9 @@ This application should pass with merits:
    - Messages have a score and they can be upvoted and downvoted. Up and downvoting messages changes the score. The votes are also stored to the database.
 2. The project has a database (PostgreSQL) that stores the messages and the replies to the messages.
 3. The project has a set of Kubernetes configuration files with autoscaling and a database operator that can be used to deploy the application to Kubernetes. Include the Kubernetes configuration files into a folder called kubernetes.
-4. The Lighthouse performance score for the application is 100 for the application pages.
-5. If the user is on the main page, new messages are added to the shown list of messages using the HTTP Event Source (Server-Sent Events).
+4. The Lighthouse performance score for the application is 99 for the message and reply application pages.
+5. With the HTTP Event Source (Server-Sent Events), all the pages are synced even when they are opened. 
+   - If the user is on the main page, new messages are added to the shown list of messages .
    - If the user is on the main page, incoming up or downvotes change the score of the specific message.
    - If the user is on a message page, new replies to that message are added to the shown list of replies.
    - Work also in the situation where there are multiple application server pods. I use a separate messaging service (RabbitMQ) and broadcast those messages through Event Source to achieve the desired outcome.
@@ -22,7 +23,8 @@ This application should pass with merits:
 Using Docker Compose.
 
 - To start the application, open up the terminal in the source code folder that
-  contains the `docker-compose.yml` file and type `docker-compose up`.
+  contains the `docker-compose.yml` file and type `docker-compose up`. the application
+  will start and be available at `http://localhost:7800`.
 - To stop the application, press `ctrl+C` (or similar) in the same terminal
   where you wrote the command `docker-compose up`. Another option is to open up
   a new terminal and navigate to the folder that contains the
@@ -51,53 +53,58 @@ minikube tunnel
 Then, open the indicated ip in your browser.
 
 ## Core Web Vitals tests
-Using [Lighthouse](https://developers.google.com/web/tools/lighthouse) to test the Core Web Vitals of the application.
+Using [Lighthouse](https://developers.google.com/web/tools/lighthouse) to test the Core Web Vitals of both message and the reply pages of the application.
 
-Performance: 100
+Performance: 99
 Accessibility: 100
-Best Practices: 99
+Best Practices: 100
 
-## Performance tests
+## Performance tests for the application page
 Performance tests are done with k6. The tests are done with 50 virtual users concurrently for 10 seconds.
 
 You should run the performance tests after starting the application with `docker-compose up`. The following commands are run in the terminal in the clone source code folder that contains the `docker-compose.yml` file.
 
-### The main/exercise page
 Run:
 ```bash
-
+docker-compose run --entrypoint=k6 k6 run index.js
 ```
 
 ```logs
+  execution: local
+     script: index.js
+     output: -
 
-```
-### API: Code Submission to the database
-Run:
-```bash
+  scenarios: (100.00%) 1 scenario, 50 max VUs, 40s max duration (incl. graceful stop):
+           * default: 50 looping VUs for 10s (gracefulStop: 30s)
 
-```
 
-```logs
+running (10.0s), 00/50 VUs, 36009 complete and 0 interrupted iterations
+default ✓ [======================================] 50 VUs  10s
 
-```
-### API: Get user completed exercises
-Run:
-```bash
+     ✓ is status 200
 
-```
-
-```logs
-
-```
-### API: Get grading results
-Run:
-```bash
-docker-compose run --entrypoint=k6 k6 run result.js
-```
-
-```logs
-
+     checks.........................: 100.00% ✓ 36009       ✗ 0    
+     data_received..................: 46 MB   4.6 MB/s
+     data_sent......................: 2.9 MB  288 kB/s
+     http_req_blocked...............: avg=1.37µs  med=1.2µs   p(95)=2.1µs   p(99)=3.37µs 
+     http_req_connecting............: avg=87ns    med=0s      p(95)=0s      p(99)=0s     
+     http_req_duration..............: avg=13.84ms med=15.58ms p(95)=22.3ms  p(99)=27.1ms 
+       { expected_response:true }...: avg=13.84ms med=15.58ms p(95)=22.3ms  p(99)=27.1ms 
+     http_req_failed................: 0.00%   ✓ 0           ✗ 36009
+     http_req_receiving.............: avg=23.04µs med=21.26µs p(95)=39.75µs p(99)=63.55µs
+     http_req_sending...............: avg=5.34µs  med=4.89µs  p(95)=8.62µs  p(99)=14.54µs
+     http_req_tls_handshaking.......: avg=0s      med=0s      p(95)=0s      p(99)=0s     
+     http_req_waiting...............: avg=13.82ms med=15.55ms p(95)=22.26ms p(99)=27.06ms
+     http_reqs......................: 36009   3597.010693/s
+     iteration_duration.............: avg=13.89ms med=15.62ms p(95)=22.35ms p(99)=27.18ms
+     iterations.....................: 36009   3597.010693/s
+     vus............................: 50      min=50        max=50 
+     vus_max........................: 50      min=50        max=50
 ```
 
 ## Reflection
+As we serve the frontend using react as static files, we can easily scale the front end to handle more traffic. The API is usually the bottleneck of the system, but in this project, we scaled the API using kubernetes to handle more traffic by adding more instances of the API. Currently, we do not have a cache for the database, so this can get improved. Furtherly, we can caching the data using redis and database index. We can cache the data in the API and serve it to the front end. This will reduce the number of requests to the database and further improve the performance of the API.
 
+Now the API using one instance message queue RabbitMQ to make pages synced. This is a good solution for the current situation, but we can improve it by using a pub/sub system like Kafka. Kafka is a distributed streaming platform that can handle a lot of traffic. It is also a good solution for the current situation, but it is more complex to set up and maintain.
+
+To maximum the performance of the application, we already use an kubernetes ingress to distribute the requests to multiple pods. If we want to improve the performance of page rendering, like reducing the page latency, we can use a CDN to cache the static files, so that the client can directly request the static files from the CDN, and the server does not need to send a response to the client.
