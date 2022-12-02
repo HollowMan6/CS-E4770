@@ -39,7 +39,7 @@ const List = ({ reply }) => {
     if (source) {
       source.close()
     }
-    source = new EventSource("//localhost:7776/");
+    source = new EventSource("/sse");
     source.addEventListener("ping", (evt) => {
       if (evt.data) {
         JSON.parse(evt.data).forEach((item) => {
@@ -52,9 +52,7 @@ const List = ({ reply }) => {
               } else {
                 return states.concat([item]).sort((a, b) => b.time - a.time)
               }
-            }
-              
-            );
+            });
           }
         });
       }
